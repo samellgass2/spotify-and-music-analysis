@@ -1,6 +1,9 @@
 # Secrets are a no no
 Scripts/secrets.env
 
+# And Profiles too
+Script/profiles.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

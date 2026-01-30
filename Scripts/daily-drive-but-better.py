@@ -25,7 +25,7 @@ Behavior:
 Auth:
 - One-time per user: run init-auth to mint a refresh token.
 - Cron: store refresh token in env var SPOTIFY_<PROFILE>_REFRESH_TOKEN.
-  Example: SPOTIFY_SAM_REFRESH_TOKEN, SPOTIFY_CASEY_REFRESH_TOKEN.
+  Example: SPOTIFY_SAM_REFRESH_TOKEN, SPOTIFY_KASEY_REFRESH_TOKEN.
 
 Requires: requests (pip install requests)
 """
@@ -616,6 +616,77 @@ def cmd_init_auth(args: argparse.Namespace) -> int:
     print(refresh_token, flush=True)
     return 0
 
+def chunked(lst: List[str], n: int) -> List[List[str]]:
+    return [lst[i:i + n] for i in range(0, len(lst), n)]
+
+def spotify_get_many_tracks(access_token: str, track_ids: List[str]) -> Dict[str, dict]:
+    """
+    Returns dict track_id -> track object
+    """
+    out: Dict[str, dict] = {}
+    for chunk in chunked(track_ids, 50):
+        data = spotify_get(access_token, "/tracks", params={"ids": ",".join(chunk)})
+        for t in data.get("tracks") or []:
+            if t and t.get("id"):
+                out[t["id"]] = t
+    return out
+
+def spotify_get_many_episodes(access_token: str, episode_ids: List[str]) -> Dict[str, dict]:
+    """
+    Returns dict episode_id -> episode object
+    """
+    out: Dict[str, dict] = {}
+    for chunk in chunked(episode_ids, 50):
+        data = spotify_get(access_token, "/episodes", params={"ids": ",".join(chunk)})
+        for e in data.get("episodes") or []:
+            if e and e.get("id"):
+                out[e["id"]] = e
+    return out
+
+def pretty_item_lines(access_token: str, uris: List[str], show_uris: bool = False) -> List[str]:
+    """
+    Turn spotify:item URIs into pretty display lines.
+    If show_uris=True, append the URI at the end.
+    """
+    track_ids: List[str] = []
+    episode_ids: List[str] = []
+
+    for u in uris:
+        if u.startswith("spotify:track:"):
+            track_ids.append(u.split(":")[2])
+        elif u.startswith("spotify:episode:"):
+            episode_ids.append(u.split(":")[2])
+
+    tracks = spotify_get_many_tracks(access_token, track_ids) if track_ids else {}
+    episodes = spotify_get_many_episodes(access_token, episode_ids) if episode_ids else {}
+
+    lines: List[str] = []
+    for u in uris:
+        suffix = f"  ({u})" if show_uris else ""
+        if u.startswith("spotify:track:"):
+            tid = u.split(":")[2]
+            t = tracks.get(tid)
+            if not t:
+                lines.append(f"🎵 [unknown track]{suffix}")
+                continue
+            name = t.get("name") or "[unnamed]"
+            artists = ", ".join(a.get("name") for a in (t.get("artists") or []) if a.get("name")) or "[unknown artist]"
+            lines.append(f"🎵 {name} — {artists}{suffix}")
+        elif u.startswith("spotify:episode:"):
+            eid = u.split(":")[2]
+            e = episodes.get(eid)
+            if not e:
+                lines.append(f"🎙️ [unknown episode]{suffix}")
+                continue
+            name = e.get("name") or "[unnamed]"
+            show = (e.get("show") or {}).get("name") or "[unknown show]"
+            lines.append(f"🎙️ {name} — {show}{suffix}")
+        else:
+            lines.append(f"• {u}{suffix}")
+
+    return lines
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     client_id = args.client_id or os.environ.get("SPOTIFY_CLIENT_ID")
     client_secret = args.client_secret or os.environ.get("SPOTIFY_CLIENT_SECRET")
@@ -743,8 +814,8 @@ def cmd_run(args: argparse.Namespace) -> int:
             for w, ln in whitelist_debug:
                 print(f"  - {w}: {ln} track URIs available after blacklist")
         print(f"Chosen songs: {len(chosen_tracks)} | Episodes: {len(episode_uris)} | Final items: {len(final_uris)}")
-        for u in final_uris:
-            print(" ", u)
+        for line in pretty_item_lines(access, final_uris, show_uris=False):
+            print(" ", line)
         return 0
 
     clear_playlist(access, playlist_id)
@@ -768,7 +839,7 @@ def build_parser() -> argparse.ArgumentParser:
               - Define profiles in profiles.json (default) with playlist/podcasts/bias/etc.
               - Weekday overrides: "<profile>_<weekday>" (mon..sun) if present.
               - Provide per-profile refresh tokens via env:
-                  SPOTIFY_SAM_REFRESH_TOKEN, SPOTIFY_CASEY_REFRESH_TOKEN, ...
+                  SPOTIFY_SAM_REFRESH_TOKEN, SPOTIFY_KASEY_REFRESH_TOKEN, ...
               - Run with: --profile sam
 
             Whitelist:
