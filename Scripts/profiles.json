@@ -1,0 +1,33 @@
+{
+  "sam_monday": {
+    "playlist": "https://open.spotify.com/playlist/7D8KhhhTiPXVUoyfeeogkx",
+    "podcasts": ["Up First from NPR", "The Best One Yet", "The Happiness Lab: Getting Unstuck", "99% Invisible", "Revisionist History"],
+    "bias": 0.1,
+    "num_songs": 30,
+    "songs_per_podcast": 5,
+    "blacklist_playlists": ["https://open.spotify.com/playlist/7mhUaQ36jIgWPHjCe6dhI8?si=gOslhU6yS9qEs27UdM0oSQ"],
+    "whitelist_playlists": [],
+    "whitelist_ratio": 0.0
+  },
+  "sam": {
+    "playlist": "https://open.spotify.com/playlist/7D8KhhhTiPXVUoyfeeogkx",
+    "podcasts": ["Up First from NPR", "The Best One Yet", "The Happiness Lab: Getting Unstuck", "99% Invisible", "Revisionist History"],
+    "bias": 0.7,
+    "num_songs": 30,
+    "songs_per_podcast": 5,
+    "blacklist_playlists": [],
+    "whitelist_playlists": [],
+    "whitelist_ratio": 0.0
+  },
+  "sam_fri": {
+    "playlist": "https://open.spotify.com/playlist/7D8KhhhTiPXVUoyfeeogkx",
+    "podcasts": ["Up First from NPR", "The Best One Yet", "The Happiness Lab: Getting Unstuck", "99% Invisible", "Revisionist History"],
+    "bias": 0.3,
+    "num_songs": 30,
+    "songs_per_podcast": 5,
+    "whitelist_playlists": [
+      "https://open.spotify.com/playlist/37i9dQZEVXbwZFIF2hxCC3"
+    ],
+    "whitelist_ratio": 0.6
+  }
+}
