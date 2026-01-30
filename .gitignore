@@ -2,7 +2,7 @@
 Scripts/secrets.env
 
 # And Profiles too
-Script/profiles.json
+Scripts/profiles.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

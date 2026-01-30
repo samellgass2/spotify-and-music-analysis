@@ -822,7 +822,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     if final_uris:
         add_items_to_playlist(access, playlist_id, final_uris)
 
-    print(f"✅ Updated playlist {playlist_id} via profile={cfg.name!r}: "
+    print(f"\n✅ Updated playlist {playlist_id} via profile={cfg.name!r}: "
           f"{len(final_uris)} items ({len(episode_uris)} episodes, {len(chosen_tracks)} songs).")
     return 0
 
